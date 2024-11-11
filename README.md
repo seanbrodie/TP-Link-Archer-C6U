@@ -1,12 +1,21 @@
 # TP-Link Router API
 Python package for API access and management for TP-Link Routers. See [Supported routers](#supports)
 
-[![Pypi](https://img.shields.io/pypi/v/tplinkrouterc6u)](https://pypi.org/project/tplinkrouterc6u/)
-[![Downloads](https://static.pepy.tech/personalized-badge/tplinkrouterc6u?period=total&units=international_system&left_color=grey&right_color=orange&left_text=Downloads)](https://pypi.org/project/tplinkrouterc6u/)
-![Python versions](https://img.shields.io/pypi/pyversions/tplinkrouterc6u)
+Fork of [AlexandrErohin/TP-Link-Archer-C6U](https://github.com/AlexandrErohin/TP-Link-Archer-C6U/)
 
-## Installation
-`pip install tplinkrouterc6u`
+Added the ability to not force logout of other sessions where only one logged-in user is allowed. 
+
+```python
+router.authorize()       # default will forcefully log out other users
+router.authorize(True)   # True    will forcefully log out other users
+router.authorize(False)  # False   will not log out other users
+                         # if another user is logged in, the authorize function will throw a ClientException:
+                         # 'errorcode': 'user conflict' 
+```
+
+- only tested on Archer AX12
+
+---
 
 ## Dependencies
  - [requests](https://pypi.org/project/requests/)
