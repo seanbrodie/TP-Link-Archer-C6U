@@ -141,14 +141,14 @@ class TplinkEncryption(TplinkRequest):
         except ClientException:
             return False
 
-    def authorize(self) -> None:
+    def authorize(self, force_logout_other_sessions: bool = True) -> None:
         if self._pwdNN == '':
             self._request_pwd()
 
         if self._seq == '':
             self._request_seq()
 
-        response = self._try_login()
+        response = self._try_login(force_logout_other_sessions)
 
         is_valid_json = False
         try:
@@ -233,12 +233,12 @@ class TplinkEncryption(TplinkRequest):
                 self._logger.debug(error)
             raise ClientException(error)
 
-    def _try_login(self) -> Response:
+    def _try_login(self, force_logout_other_sessions: bool) -> Response:
         url = '{}/cgi-bin/luci/;stok=/login?form=login'.format(self.host)
 
         crypted_pwd = self._encryption.rsa_encrypt(self.password, self._pwdNN, self._pwdEE)
 
-        body = self._prepare_data(self._get_login_data(crypted_pwd))
+        body = self._prepare_data(self._get_login_data(crypted_pwd,force_logout_other_sessions))
 
         return post(
             url,
@@ -249,8 +249,9 @@ class TplinkEncryption(TplinkRequest):
         )
 
     @staticmethod
-    def _get_login_data(crypted_pwd: str) -> str:
-        return 'operation=login&password={}&confirm=true'.format(crypted_pwd)
+    def _get_login_data(crypted_pwd: str, force_logout_other_sessions: bool) -> str:
+        force_logout_other_sessions = 'true' if force_logout_other_sessions else 'false'
+        return 'operation=login&password={}&confirm={}'.format(crypted_pwd, force_logout_other_sessions)
 
     def _prepare_data(self, data: str) -> dict:
         encrypted_data = self._encryption.aes_encrypt(data)
